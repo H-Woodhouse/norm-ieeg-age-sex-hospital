@@ -1,4 +1,4 @@
-# Code and output for 'Multicentre normative brain mapping of interictal intracranial EEG to identify healthy ageing patterns and sex differences in the human brain'
+# Folder structure
 
 Data comprises the final normative data frames ready for modelling. There is:
 - Details on the scale 36 parcellation ('ROI1'), inc. names, labels, xyz coords, hemisphere, cortical
@@ -20,3 +20,4 @@ Output scripts are:
 - coefs brain maps.m produces the brain figure (Result 3.4)
 - sup mod.R handles the modelling for supp., results are then run through coefs brain map.m
 - sup age range.R checks that regional results are not correlated with the regions distribution of ages, for supp.
+
