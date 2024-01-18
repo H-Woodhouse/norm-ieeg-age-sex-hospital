@@ -16,8 +16,10 @@ Modelling has the three modelling scripts:
 
 Output scripts are:
 - EDA.R produces the subject distributions visualisation (Methods) and linearity checks (Supp.)
-- age model plots.R produces the majority of subplots and plots in Results
-- coefs brain maps.m produces the brain figure (Result 3.4)
-- sup mod.R handles the modelling for supp., results are then run through coefs brain map.m
-- sup age range.R checks that regional results are not correlated with the regions distribution of ages, for supp.
+- age_model_plots.R produces the majority of subplots and plots in Results
+- coefs_brain_maps.m produces the brain figure (Result 3.4)
+- sup_models.R handles the modelling for supp., results are then run through coefs brain map.m
+- sup_age_range.R checks that regional results are not correlated with the regions distribution of ages, for supp.
+
+The MATLAB folder has the functions called to plot the brains along with the pial files needed.
 
