@@ -118,7 +118,7 @@ region_SE = region_SE %>%
 
 SE=ggplot(data=region_SE) +
   geom_line(aes(x=Area,y=SE, group=freqband,color=freqband)) +
-  ylab(expression(paste("Standard error of ",italic(b[age])))) + xlab("Region name") +
+  ylab(expression(paste("Standard error of ",italic(hat(b)[age])))) + xlab("Region name") +
   scale_y_continuous(labels = comma) + scale_color_manual(values = fb_colors, labels=fb_lab) +
   theme(axis.text.x=element_text(hjust=0,angle=-90,vjust=0.5),
         legend.title=element_blank(), legend.position = c(0.8,0.7), legend.background = element_rect(colour="grey"),
@@ -130,21 +130,25 @@ SE=ggplot(data=region_SE) +
 #### COMBINE! ##################################################################
 
 grid.newpage()
+pdf("ROI_level_stats.pdf", width = 14.5,height = 18.75)
 grid.draw(rbind(ggplotGrob(ppr),ggplotGrob(CI),ggplotGrob(SE)))
+dev.off()
 
 
 
 #### CONFIDENCE INTERVAL PLOT (WHOLE BRAIN) ####################################
 
 options(scipen=999) # no sci notation
+pdf("whole_brain_CIs.pdf",width = 11, height = 18.5)
 ggplot(data = CIs) +
   geom_vline(xintercept = 0, linewidth = 2, color = "white") +
   geom_vline(xintercept = 0, linetype = 2, col="gray30") +
   geom_segment(mapping = aes(x=lower95ci,xend=upper95ci,y=Band, yend=Band), linewidth=2,lineend="butt") +
-  ylab(NULL) + xlab(expression(italic(b[age]))) + scale_y_discrete(limits=rev) +
+  ylab(NULL) + xlab(expression(italic(hat(b)[age]))) + scale_y_discrete(limits=rev) +
   theme(panel.grid.major.y = element_blank(),axis.text.y = element_blank(),axis.title.x=element_text(margin=margin(t=10))) + 
   scale_x_continuous(breaks=c(-0.0008,-0.0004,0,0.0004,0.0008),limits = c(-0.0008,0.0008)) +
   geom_point(aes(x=coeff,y=Band),size=5)
+dev.off()
 
 
 

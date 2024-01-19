@@ -39,20 +39,20 @@ theme_set(theme_classic(base_size = 24))
 
 # fit the LMM & extract coeffs
 alp_HP_LMM = lmer(alphaBP~Age+(1|Site), data=alp_HP)
-alp_HP_LMM_coef = formatC(summary(alp_HP_LMM)$coefficients,format = "e", digits = 2)
+alp_HP_LMM_coef = summary(alp_HP_LMM)$coefficients
 
 # predict marginal/fixed effect values
 alp_HP = alp_HP %>% 
   mutate(fit.age = predict(alp_HP_LMM, re.form = NA))
 
 # plot
-b_alp = alp_HP_LMM_coef["Age","Estimate"] 
+b_alp = round(alp_HP_LMM_coef["Age","Estimate"],6) 
 pdf("Output/alpha_hipp.pdf", width=11,height=7)
 alp_HP %>%
   ggplot(aes(x = Age, y = alphaBP)) +
   geom_point(col = "#D9D9D9") +
   geom_line(aes(y = fit.age), col = "#FFB6B6", linewidth = 1.5) +
-  ylab(expression("RPB("*alpha*")")) +
+  ylab(expression("RBP("*alpha*")")) +
   annotate("text", x=15,y=0.24, col="#FFB6B6",size=6, label=deparse1(bquote(italic(hat(b))[age]==.(b_alp))),parse=T)
 dev.off()
 
@@ -61,20 +61,20 @@ dev.off()
 
 # fit the LMM & extract coeffs
 del_MT_LMM = lmer(deltaBP~Age+(1|Site), data=del_MT)
-del_MT_LMM_coef = formatC(summary(del_MT_LMM)$coefficients,format = "e", digits = 2)
+del_MT_LMM_coef = summary(del_MT_LMM)$coefficients
 
 # predict marginal/fixed effect values
 del_MT = del_MT %>% 
   mutate(fit.age = predict(del_MT_LMM, re.form = NA))
 
 # plot
-b_del = del_MT_LMM_coef["Age","Estimate"] # b_age coef for label
+b_del = round(del_MT_LMM_coef["Age","Estimate"],6)
 pdf("Output/delta_midtemp.pdf", width=11,height=7)
 del_MT %>%
   ggplot(aes(x = Age, y = deltaBP)) +
   geom_point(col = "#D9D9D9") +
   geom_line(aes(y = fit.age), col = "#3A9CFF", linewidth = 1.5) +
-  ylab(expression("RPB("*delta*")")) +
+  ylab(expression("RBP("*delta*")")) +
   annotate("text", x=15,y=0.45, col="#3A9CFF",size=6, label=deparse1(bquote(italic(hat(b))[age]==.(b_del))),parse=T)
 dev.off()
 

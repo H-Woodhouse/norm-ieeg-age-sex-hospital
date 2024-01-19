@@ -49,7 +49,7 @@ theme_set(theme_minimal(base_size = 20))
 
 # additions to all plots
 gg_all = list(
-  geom_point(), xlab("10-90th percentile age range"), ylab(expression(b[age])),
+  geom_point(), xlab("10-90th percentile age range"), ylab(expression(italic(hat(b)[age]))),
   theme(plot.title = element_text(hjust = 0.5),panel.grid.minor.y = element_blank())
 )
 
@@ -70,7 +70,7 @@ gam=ggplot(data = ROI_ages, aes(x=inter90range,y=gamma_coef)) + ggtitle(expressi
   stat_cor(method="spearman", label.x=45, label.y=0.0008) + gg_all
 
 # combine
-pdf("Output/sup-results/ROI_ages.pdf", width=15,height=13)
+pdf("Output/sup-results/ROI_ages_SUP.pdf", width=15,height=13)
 grid.arrange(del,the,alp,bet,gam)
 dev.off()
 

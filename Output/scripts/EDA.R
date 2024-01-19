@@ -68,10 +68,12 @@ forest_df |>
 # see if there's evidence of a non linear relationship
 # included in supplementary
 theme_set(theme_minimal())
-del=ggplot(data=BPdata_full, aes(x=Age,y=deltaBP)) + geom_point(size=.5) + ylab(expression("RPB("*delta*")"))
-the=ggplot(data=BPdata_full, aes(x=Age,y=thetaBP)) + geom_point(size=.5) + ylab(expression("RPB("*theta*")"))
-alp=ggplot(data=BPdata_full, aes(x=Age,y=alphaBP)) + geom_point(size=.5) + ylab(expression("RPB("*alpha*")"))
-bet=ggplot(data=BPdata_full, aes(x=Age,y=betaBP )) + geom_point(size=.5) + ylab(expression("RPB("*beta*")"))
-gam=ggplot(data=BPdata_full, aes(x=Age,y=gammaBP)) + geom_point(size=.5) + ylab(expression("RPB("*gamma*")"))
+del=ggplot(data=BPdata_full, aes(x=Age,y=deltaBP)) + geom_point(size=.5) + ylab(expression("RBP("*delta*")"))
+the=ggplot(data=BPdata_full, aes(x=Age,y=thetaBP)) + geom_point(size=.5) + ylab(expression("RBP("*theta*")"))
+alp=ggplot(data=BPdata_full, aes(x=Age,y=alphaBP)) + geom_point(size=.5) + ylab(expression("RBP("*alpha*")"))
+bet=ggplot(data=BPdata_full, aes(x=Age,y=betaBP )) + geom_point(size=.5) + ylab(expression("RBP("*beta*")"))
+gam=ggplot(data=BPdata_full, aes(x=Age,y=gammaBP)) + geom_point(size=.5) + ylab(expression("RBP("*gamma*")"))
 
+pdf("Output/sup-results/linear_scatter_SUP.pdf", width = 9.5, height = 10)
 grid.arrange(del,the,alp,bet,gam)
+dev.off()
