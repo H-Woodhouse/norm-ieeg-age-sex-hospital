@@ -24,3 +24,4 @@ Output scripts are:
 
 The MATLAB folder has the functions called to plot the brains along with the pial files needed.
 
+Tracking pngs due to long plotting time.
