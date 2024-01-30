@@ -17,8 +17,8 @@ Modelling has three modelling scripts:
 Output scripts are:
 - EDA.R produces the subject distribution visualisation (Methods) and linearity checks (Supp.)
 - age_model_ROI_plots.R produces regional-level subplots and plots in Results
-- b_age_brain_maps.m produces the brain figure (Result 3.4)
-- strong_ROI_plots.R gives scatter plots of two well-populated ROIs, to 'zoom in' on the model
+- b_age_brain_maps.m produces the brain figure displaying b_age values (Result 3.4)
+- strong_ROI_plots_and_wholebrain_CIs.R gives scatter plots of two well-populated ROIs, to 'zoom in' on the model along with whole brain CIs (Result 3.4)
 - sup_models.R handles the modelling for supp., results are then run through coefs brain map.m
 - sup_age_range.R checks that regional results are not correlated with the region's distribution of ages, for supp.
 
