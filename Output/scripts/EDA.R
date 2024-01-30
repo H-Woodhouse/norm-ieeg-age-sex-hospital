@@ -53,6 +53,7 @@ forest_df = meta %>%
   arrange(Site_full)
 
 # forest plot figure
+pdf("Output/subject_meta.pdf",width = 10, height = 8, onefile = FALSE)
 forest_df |>
   forestplot(labeltext=c(Site_full,n, M_F), boxsize=0.25, xticks=seq(0,70,10), xlab="Age range with mean",
              zero=NA,fn.ci_norm=fpDrawDiamondCI,col=fpColors(lines="gray50")) |>
@@ -60,6 +61,7 @@ forest_df |>
   fp_add_header(Site_full="Site", n="N", M_F="M:F") |>
   fp_set_style(txt_gp=fpTxtGp(xlab=gpar(cex=1), ticks=gpar(cex=0.75)), align="lcc") |>
   fp_append_row(Site_full="TOTAL",n=N,M_F="266:247",lower=4,upper=66,mean=31.51,is.summary = F)
+dev.off()
 
 
 
