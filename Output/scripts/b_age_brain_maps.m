@@ -26,14 +26,15 @@ rmpath(genpath([path_fieldtrip '/compat'])); % remove fieldtrip compatibility fo
 
 % model summaries in required format from R
 bands = {'delta','theta','alpha','beta','gamma'};
-betas = readtable("beta_age_coeffs_ROI1.csv");               % check file
-betas_matrix=table2array(betas(:,strcat(bands, '_coef')));
+b_ages = readtable("b_age_coeffs_ROI1.csv");               % check file
+b_ages_matrix=table2array(b_ages(:,strcat(bands, '_coef')));
+title_labels = {'δ','θ','α','β','γ'};
 
 % create atlas table (correct format for function)
 % in RIO1, 76 regions bc removed 3 ROI on each hemisphere
 atlas_cortical=table;
-atlas_cortical.xyz=mat2cell([betas.x,betas.y,betas.z],76,3);
-atlas_cortical.names = mat2cell(betas.names,76);             % check number of ROIs
+atlas_cortical.xyz=mat2cell([b_ages.x,b_ages.y,b_ages.z],76,3);
+atlas_cortical.names = mat2cell(b_ages.names,76);             % check number of ROIs
 
 %% plot maps and save (all FB)
 
@@ -43,13 +44,14 @@ atlas_cortical.names = mat2cell(betas.names,76);             % check number of R
 % resulting figure 1 is correct
 
 % find limits for CLim (need symmetric)
-max(betas_matrix)
-min(betas_matrix)
+max(b_ages_matrix)
+min(b_ages_matrix)
 
 % plot
 % can show/hide band titles in function code
-vis_norm_map_on_brain_T(betas_matrix,bands,atlas_cortical,'Colormap',bluewhitered(256), ...
-    'CLim',[-0.0025,0.0025],'View',{'top','anterior','left'}, 'FontSize',24,'ColorbarLocation','southoutside')
+vis_norm_map_on_brain_T(b_ages_matrix,bands,title_labels,atlas_cortical,'Colormap',bluewhitered(256), ...
+    'CLim',[-0.0025,0.0025],'View',{'left','top','anterior'}, 'FontSize',24, ...
+    'ColorbarLocation','southoutside','TitleFontSize',38)
 
 % save (too complex for vector format)
-saveas(gcf, 'age_coeffs_map_ROI1.png')
+saveas(gcf, 'age_coeffs_map_ROI1_with_band.png')

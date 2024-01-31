@@ -1,4 +1,4 @@
-function [f, ax] = vis_norm_map_on_brain_T(norm_meas,feat_names,atlas,options)
+function [f, ax] = vis_norm_map_on_brain_T(norm_meas,feat_names,feat_title,atlas,options)
 % VIS_NORM_MAP_ON_BRAIN Plot normative map (all features) on brain surface
 % in one or more views.
 %
@@ -30,6 +30,7 @@ function [f, ax] = vis_norm_map_on_brain_T(norm_meas,feat_names,atlas,options)
 arguments
     norm_meas {mustBeNumeric}
     feat_names cell
+    feat_title cell
     atlas table
     options.View cell = {'top','anterior','left','right'};  % must be subset of the default views
     options.MarkerSize (1,1) = 100                          % size to plot ROI markers
@@ -99,9 +100,10 @@ for j=1:n_feat
     end
     
     % title
-    %if i == 1
-    %    title(feat_names{j},'FontSize',options.TitleFontSize)
-    %end
+    if i == 1
+        title(feat_title{j},'FontSize',options.TitleFontSize, ...
+            'Units','normalized','Position',[0,0.7,1],'FontWeight','Normal')
+    end
     
     % subplot counter
     my_count = my_count+1;
