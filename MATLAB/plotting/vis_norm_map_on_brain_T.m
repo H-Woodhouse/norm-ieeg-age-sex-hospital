@@ -67,8 +67,8 @@ set(f,'units','centimeters','position',[2 2 10+n_feat*7 10+n_view*6])
 my_count=1; 
 
 % plot for each view and feature
-for j=1:n_feat
-    for i=1:n_view
+for i=1:n_view
+    for j=1:n_feat
         
     % which rois to plot (0 = plot, NaN = missing from map)
     x = single(isnan(norm_meas(:,j)));
@@ -81,7 +81,7 @@ for j=1:n_feat
         cbar = false;
     end
     
-    ax(i,j) = subplot(n_feat,n_view,my_count);
+    ax(i,j) = subplot(n_view,n_feat,my_count);
     pos = ax(i,j).Position;
     
     % call vis_plot_abnormalities_on_brain
@@ -102,7 +102,7 @@ for j=1:n_feat
     % title
     if i == 1
         title(feat_title{j},'FontSize',options.TitleFontSize, ...
-            'Units','normalized','Position',[0,0.7,1],'FontWeight','Normal')
+            'Units','normalized','Position',[0.5,1.2,1],'FontWeight','Normal')
     end
     
     % subplot counter
