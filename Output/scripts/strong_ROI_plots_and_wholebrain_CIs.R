@@ -98,7 +98,7 @@ dev.off()
 CIs = CIs %>% mutate(Band=factor(Band, levels=Band))
 
 # plot
-pdf("Output/wholebrain_CIs.pdf",width = 10, height = 7)
+pdf("Output/wholebrain_CIs3.pdf",width = 8, height = 3)
 ggplot(data = CIs) +
   geom_hline(yintercept = 0, linewidth = 2, color = "white") +
   geom_hline(yintercept = 0, linetype = 2, col="gray30") +
