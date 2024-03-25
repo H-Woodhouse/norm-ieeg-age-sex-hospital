@@ -1,9 +1,7 @@
 ################################################################################
 
-## Script to 'zoom in' on a couple of well populated ROIs to show how RBP is 
-## changing with age
-## Also but plot the 95% CIs on b_age for each band at the whole brain level
-## Combine these plots for 3 out of 4 pannels involved in Figure 2
+## Script to 'zoom in' on MT in each band to show how RBP is changing with age
+## Also plot the 95% CIs on b_age for each band at the whole brain level
 
 
 
@@ -16,27 +14,22 @@ library(grid)        # combining figures
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
-BPdata_p = read.csv("Data/ROI1_relBP_pooled.csv")     # for well populated ROIs
+BPdata_p = read.csv("Data/ROI1_relBP_pooled.csv")     # example ROIs
 CIs = read.csv("Output/age_wholebrain_stats.csv")     # for whole brain CIs
 
 
-# chosen ROIs: want one +ve and one -ve relationship with RBP & age
-# also one cortical and one subcortical
-
-# looking to my ROI-level analysis, will take hippocampus in alpha (+ve)
-# this is the highest populated subcortical region 
-alp_HP = BPdata_p %>%
-  filter(ROI_R==12) %>%
-  select(Site, Age, alphaBP)
-
-# take middle temporal in delta (-ve) highest populated coritcal region
-del_MT = BPdata_p %>%
+# chosen ROI: will middle temporal, highest populated region 
+BPdata_MT = BPdata_p %>%
   filter(ROI_R==62) %>%
-  select(Site, Age, deltaBP)
+  select(-c(Sex, ROI_R))
+
 
 # plot settings (ROI plots)
-theme_set(theme_classic(base_size = 32))
+theme_set(theme_classic())
 options(scipen=999) # no sci notation
+
+# band
+band=c("delta","theta","alpha","beta","gamma")
 
 # greek letters
 fb_lab=c(expression(delta),expression(theta),expression(alpha),expression(beta),expression(gamma))
@@ -45,47 +38,57 @@ fb_lab=c(expression(delta),expression(theta),expression(alpha),expression(beta),
 rm(BPdata_p)
 
 
-#### MODEL AND PLOT MID TEMP ALPHA #############################################
+#### AGE MODEL IN MIDDLE TEMP FOR EACH FB ######################################
 
 # plotting model directly uses ggplot uses OLS - no grouping/random effect
 
-# fit the LMM & extract coeffs
-alp_HP_LMM = lmer(alphaBP~Age+(1|Site), data=alp_HP)
-alp_HP_LMM_coef = summary(alp_HP_LMM)$coefficients
+for (i in 1:5) {
+  
+  # model formula for particular FB
+  model = formula(paste0(band[i],"BP~Age+(1|Site)"))
+  
+  # model
+  age_mod = lmer(model, data = BPdata_MT)
+  
+  # fitted values
+  BPdata_MT[,paste0("AgeFit.", band[i])] = predict(age_mod, re.form = NA) 
 
-# predict marginal/fixed effect values
-alp_HP = alp_HP %>% 
-  mutate(fit.age = predict(alp_HP_LMM, re.form = NA))
-
-# plot
-b_alp = round(alp_HP_LMM_coef["Age","Estimate"],6) 
-HPfig = alp_HP %>%
-  ggplot(aes(x = Age, y = alphaBP)) +
-  geom_point(col = "#D9D9D9", size=3) +
-  geom_line(aes(y = fit.age), col = "#FFB6B6", linewidth = 3) +
-  ylab(expression("RBP("*alpha*")")) +
-  annotate("text", x=15,y=0.24, col="#FFB6B6",size=12, label=deparse1(bquote(italic(hat(b))[age]==.(b_alp))),parse=T)
+}
 
 
-#### MODEL AND PLOT HIPPOCAMPUS DELTA ##########################################
 
-# fit the LMM & extract coeffs
-del_MT_LMM = lmer(deltaBP~Age+(1|Site), data=del_MT)
-del_MT_LMM_coef = summary(del_MT_LMM)$coefficients
+#### PLOTTING ##################################################################
 
-# predict marginal/fixed effect values
-del_MT = del_MT %>% 
-  mutate(fit.age = predict(del_MT_LMM, re.form = NA))
+# each fb plot
 
-# plot
-b_del = round(del_MT_LMM_coef["Age","Estimate"],6)
-MTfig = del_MT %>%
-  ggplot(aes(x = Age, y = deltaBP)) +
-  geom_point(col = "#D9D9D9", size=3) +
-  geom_line(aes(y = fit.age), col = "#3A9CFF", linewidth = 3) +
-  ylab(expression("RBP("*delta*")")) +
-  annotate("text", x=15,y=0.45, col="#3A9CFF",size=12, label=deparse1(bquote(italic(hat(b))[age]==.(b_del))),parse=T)
+gg_all = list(geom_point(col = "darkgrey",size=0.5), theme(aspect.ratio=1))
 
+del = BPdata_MT %>%
+  ggplot(aes(x = Age, y = deltaBP)) + gg_all + ylab(expression("RBP("*delta*")")) +
+  geom_line(aes(y = AgeFit.delta),col="blue",linewidth=1)
+
+the = BPdata_MT %>%
+  ggplot(aes(x = Age, y = thetaBP)) + gg_all + ylab(expression("RBP("*theta*")")) +
+  geom_line(aes(y = AgeFit.theta),col="blue",linewidth=1)
+
+alp = BPdata_MT %>%
+  ggplot(aes(x = Age, y = alphaBP))+ gg_all + ylab(expression("RBP("*alpha*")")) +
+  geom_line(aes(y = AgeFit.alpha),col="red",linewidth=1)
+
+bet = BPdata_MT %>%
+  ggplot(aes(x = Age, y = betaBP)) + gg_all + ylab(expression("RBP("*beta*")")) +
+  geom_line(aes(y = AgeFit.beta),col="red",linewidth=1)
+
+gam = BPdata_MT %>%
+  ggplot(aes(x = Age, y = gammaBP)) + gg_all + ylab(expression("RBP("*gamma*")")) +
+  geom_line(aes(y = AgeFit.gamma),col="red",linewidth=1)
+
+# combine 
+
+pdf("Output/MT_scatter.pdf",width = 8, height = 2)
+grid.newpage()
+grid.draw(cbind(ggplotGrob(del),ggplotGrob(the),ggplotGrob(alp),ggplotGrob(bet),ggplotGrob(gam)))
+dev.off()
 
 
 #### CONFIDENCE INTERVAL PLOT (WHOLE BRAIN) ####################################
@@ -95,22 +98,15 @@ MTfig = del_MT %>%
 CIs = CIs %>% mutate(Band=factor(Band, levels=Band))
 
 # plot
-CIfig = ggplot(data = CIs) +
-  geom_vline(xintercept = 0, linewidth = 2, color = "white") +
-  geom_vline(xintercept = 0, linetype = 2, col="gray30") +
-  geom_segment(mapping = aes(x=lower95ci,xend=upper95ci,y=Band, yend=Band), linewidth=2,lineend="butt") +
-  ylab(NULL) + xlab(expression(italic(hat(b)[age]))) + scale_y_discrete(limits=rev, label=rev(fb_lab)) + theme_minimal(base_size = 32) +
-  theme(panel.grid.major.y = element_blank(),axis.title.x=element_text(margin=margin(t=10)),axis.text.y = element_text(size=32)) + 
-  scale_x_continuous(breaks=c(-0.0008,-0.0004,0,0.0004,0.0008),limits = c(-0.0008,0.0008)) +
-  geom_point(aes(x=coeff,y=Band),size=7) 
-
-
-  
-#### COMBINE ###################################################################
-
-grid.newpage()
-pdf("Output/wholebrain_CIs_and_MT_HP_scatter.pdf",width = 23.44, height = 39.75)
-grid.draw(rbind(ggplotGrob(MTfig),ggplotGrob(HPfig),ggplotGrob(CIfig)))
+pdf("Output/wholebrain_CIs.pdf",width = 10, height = 7)
+ggplot(data = CIs) +
+  geom_hline(yintercept = 0, linewidth = 2, color = "white") +
+  geom_hline(yintercept = 0, linetype = 2, col="gray30") +
+  geom_segment(mapping = aes(y=lower95ci,yend=upper95ci,x=Band, xend=Band), lineend="butt") +
+  xlab(NULL) + ylab(expression(italic(hat(b)[age]))) + scale_x_discrete(label=(fb_lab)) + theme_minimal() +
+  theme(panel.grid.major.x = element_blank(),axis.title.y=element_text(margin=margin(t=10))) + 
+  scale_y_continuous(breaks=c(-0.0008,-0.0004,0,0.0004,0.0008),limits = c(-0.0008,0.0008)) +
+  geom_point(aes(y=coeff,x=Band)) 
 dev.off()
 
 
@@ -131,4 +127,9 @@ dev.off()
 #  geom_point(pch = 16, col = "grey") +
 #  geom_abline(intercept=del_MT_LMM_coef["(Intercept)","Estimate"],
 #              slope = del_MT_LMM_coef["Age","Estimate"])
+
+# code for annotating b_age -- currently not used
+#alp_HP_LMM_coef = summary(alp_HP_LMM)$coefficients
+#b_alp = round(alp_HP_LMM_coef["Age","Estimate"],6) 
+# in plot: + annotate("text", x=15,y=0.24, col="#FFB6B6",size=12, label=deparse1(bquote(italic(hat(b))[age]==.(b_alp))),parse=T)
 
