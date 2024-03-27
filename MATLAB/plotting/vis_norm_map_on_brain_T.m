@@ -74,8 +74,8 @@ for i=1:n_view
     x = single(isnan(norm_meas(:,j)));
     x(x==1) = NaN;
         
-    % only plot colorbar for last view 
-    if j == n_feat && i == n_view
+    % only plot colorbar for last view (change for first!)
+    if j == 1 %&& i == 1
         cbar = true;
     else
         cbar = false;
@@ -95,15 +95,15 @@ for i=1:n_view
         'SparedMarkerEdgeOff',options.MarkerEdgeOff,'LineWidthSpared',options.LineWidth);
     
     % return subplot to full size if has colorbar
-    if i == n_view
+    if i == 1 || n_view
         ax(i,j).Position = pos;
     end
     
     % title
-    if i == 1
-        title(feat_title{j},'FontSize',options.TitleFontSize, ...
-            'Units','normalized','Position',[0.5,1.2,1],'FontWeight','Normal')
-    end
+    %if i == 1
+    %    title(feat_title{j},'FontSize',options.TitleFontSize, ...
+    %        'Units','normalized','Position',[0.1,0.8,1],'FontWeight','Normal')
+    %end
     
     % subplot counter
     my_count = my_count+1;

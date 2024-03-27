@@ -177,15 +177,17 @@ if options.PlotBrain
 end
 
 % plot L/R for anterior and top view
-ft = 20;
-switch options.View
-    case 'anterior'
-        text(-40,-20,90,'L','FontSize',ft)
-        text(60,-20,90,'R','FontSize',ft)
-    case 'top'
-        text(-80,50,90,'L','FontSize',ft)
-        text(60,50,90,'R','FontSize',ft)
 
-end
+%ft = 20;
+%switch options.View
+%    case 'anterior'
+%        text(-40,-20,90,'L','FontSize',ft)
+%        text(60,-20,90,'R','FontSize',ft)
+%    case 'top'
+%        text(-80,50,90,'L','FontSize',ft)
+%        text(60,50,90,'R','FontSize',ft)
+%
+%end
+
 hold off
 

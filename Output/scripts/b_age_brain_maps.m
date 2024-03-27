@@ -50,8 +50,8 @@ min(b_ages_matrix)
 % plot
 % can show/hide band titles in function code
 vis_norm_map_on_brain_T(b_ages_matrix,bands,title_labels,atlas_cortical,'Colormap',bluewhitered(256), ...
-    'CLim',[-0.0025,0.0025],'View',{'top'}, 'FontSize',24, ...
-    'ColorbarLocation','eastoutside','TitleFontSize',42)
+    'CLim',[-0.0015,0.0015],'View',{'top','left'}, 'FontSize',20, ...
+    'ColorbarLocation','westoutside','TitleFontSize',42)
 
 % save (too complex for vector format)
-saveas(gcf, 'age_coeffs_map_ROI1_with_band_top.png')
+saveas(gcf, 'age_coeffs_map_ROI1_new_clim.png')
