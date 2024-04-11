@@ -11,7 +11,7 @@
 
 % working directory
 % check (main results or supp?)
-cd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/Output/")
+cd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/Output/sup-results")
 
 % pipeline containing brain plotting functions
 path_plot_fn = '/media/b6036780/8TB1/norm-ieeg-age-sex-site/MATLAB/plotting/';
@@ -26,15 +26,15 @@ rmpath(genpath([path_fieldtrip '/compat'])); % remove fieldtrip compatibility fo
 
 % model summaries in required format from R
 bands = {'delta','theta','alpha','beta','gamma'};
-b_ages = readtable("b_age_coeffs_ROI1.csv");               % check file
+b_ages = readtable("b_age_coeffs_ROI2_SUP.csv");               % check file
 b_ages_matrix=table2array(b_ages(:,strcat(bands, '_coef')));
 title_labels = {'δ','θ','α','β','γ'};
 
 % create atlas table (correct format for function)
 % in RIO1, 76 regions bc removed 3 ROI on each hemisphere
 atlas_cortical=table;
-atlas_cortical.xyz=mat2cell([b_ages.x,b_ages.y,b_ages.z],76,3);
-atlas_cortical.names = mat2cell(b_ages.names,76);             % check number of ROIs
+atlas_cortical.xyz=mat2cell([b_ages.x,b_ages.y,b_ages.z],122,3);
+atlas_cortical.names = mat2cell(b_ages.names,122);             % check number of ROIs
 
 %% plot maps and save (all FB)
 
@@ -50,8 +50,8 @@ min(b_ages_matrix)
 % plot
 % can show/hide band titles in function code
 vis_norm_map_on_brain_T(b_ages_matrix,bands,title_labels,atlas_cortical,'Colormap',bluewhitered(256), ...
-    'CLim',[-0.0015,0.0015],'View',{'top','left'}, 'FontSize',20, ...
+    'CLim',[-0.0020,0.0020],'View',{'top'}, 'FontSize',20, ...
     'ColorbarLocation','westoutside','TitleFontSize',42)
 
 % save (too complex for vector format)
-saveas(gcf, 'age_coeffs_map_ROI1_new_clim.png')
+saveas(gcf, 'age_coeffs_map_ROI2_SUP.png')

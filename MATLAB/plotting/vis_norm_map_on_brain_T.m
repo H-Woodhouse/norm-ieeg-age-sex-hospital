@@ -100,10 +100,10 @@ for i=1:n_view
     end
     
     % title
-    %if i == 1
-    %    title(feat_title{j},'FontSize',options.TitleFontSize, ...
-    %        'Units','normalized','Position',[0.1,0.8,1],'FontWeight','Normal')
-    %end
+    if i == 1
+        title(feat_title{j},'FontSize',options.TitleFontSize, ...
+            'Units','normalized','Position',[0.1,0.8,1],'FontWeight','Normal')
+    end
     
     % subplot counter
     my_count = my_count+1;
