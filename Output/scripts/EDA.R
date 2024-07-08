@@ -9,7 +9,7 @@
 # packages 
 library(tidyverse)         # dataframes and ggplot
 library(forestplot)        # foest plot
-library(gridExtra)         # combing plots
+library(gridExtra)         # combining plots
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
