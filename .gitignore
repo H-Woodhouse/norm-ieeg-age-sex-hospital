@@ -3,3 +3,5 @@ Data/failed clean up attempts
 Output/strong_ROI_locations.png
 *.pdf
 .Rhistory
+Data/preprocessing
+
