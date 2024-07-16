@@ -14,7 +14,7 @@ library(gridExtra)            # combining ggplots
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
-BPdata_p = read.csv("Data/ROI1_relBP_pooled.csv")
+BPdata_m = read.csv("Data/Preprocessing/ROI1_RBP_mirrored.csv")
 age_coeffs = read.csv("Output/age_ROI_stats.csv")
 
 band = c("delta","theta","alpha","beta","gamma")
@@ -25,9 +25,9 @@ band = c("delta","theta","alpha","beta","gamma")
 
 # calculate 0.05 and 0.95 percentiles and subtract to give rang/spread of
 # central 90% of ages
-ROI_ages = BPdata_p %>% 
+ROI_ages = BPdata_m %>% 
   group_by(ROI_R) %>%
-  reframe(age_range_l=quantile(Age,0.05), age_range_u=quantile(Age,0.95),
+  reframe(age_range_l=quantile(Age,0.1), age_range_u=quantile(Age,0.9),
           inter90range = age_range_u-age_range_l) %>%
   select(ROI_R,inter90range)
 
@@ -55,19 +55,19 @@ gg_all = list(
 
 # each band 
 del=ggplot(data = ROI_ages, aes(x=inter90range,y=delta_coef)) + ggtitle(expression(delta*"-band")) +
-  stat_cor(method="spearman", label.x=45, label.y=-0.0021) + gg_all
+  stat_cor(method="spearman", label.x=37, label.y=-0.0017) + gg_all
 
 the=ggplot(data = ROI_ages, aes(x=inter90range,y=theta_coef)) + ggtitle(expression(theta*"-band")) +
-  stat_cor(method="spearman", label.x=45, label.y=-0.00065) + gg_all
+  stat_cor(method="spearman", label.x=37, label.y=-0.0006) + gg_all
 
 alp=ggplot(data = ROI_ages, aes(x=inter90range,y=alpha_coef)) + ggtitle(expression(alpha*"-band")) +
-  stat_cor(method="spearman", label.x=45, label.y=0.00015) + gg_all
+  stat_cor(method="spearman", label.x=34, label.y=0.00015) + gg_all
 
 bet=ggplot(data = ROI_ages, aes(x=inter90range,y=beta_coef)) + ggtitle(expression(beta*"-band")) +
-  stat_cor(method="spearman", label.x=45, label.y=0.0011) + gg_all
+  stat_cor(method="spearman", label.x=37, label.y=0.0009) + gg_all
 
 gam=ggplot(data = ROI_ages, aes(x=inter90range,y=gamma_coef)) + ggtitle(expression(gamma*"-band")) +
-  stat_cor(method="spearman", label.x=45, label.y=0.0008) + gg_all
+  stat_cor(method="spearman", label.x=37, label.y=0.0007) + gg_all
 
 # combine
 pdf("Output/sup-results/ROI_ages_SUP.pdf", width=15,height=13)
