@@ -11,7 +11,7 @@ library(lme4)      # mixed effect models
 
 # database ROI level data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
-BPdata_full=read.csv("Data/ROI1_relBP_full.csv")
+BPdata_full=read.csv("Data/Preprocessing/ROI1_RBP_full.csv")
 
 # bands
 band = c("delta", "theta", "alpha", "beta", "gamma")
@@ -26,7 +26,7 @@ colnames(age_stats)=c("Band","coeff","lower95ci","upper95ci")
 for (i in 1:5) {
   
   # model formula for particular FB
-  model = formula(paste0(band[i],"BP~Age+(1|Site)"))
+  model = formula(paste0(band[i],"BP~Age+(1|Hospital)"))
   
   # model
   age_mod = lmer(model, data = BPdata_full)
@@ -35,7 +35,7 @@ for (i in 1:5) {
   age_stats[i,"Band"] = band[i]
   
   # extract coefs
-  age_stats[i,"coeff"] = coef(age_mod)$Site[1,"Age"]
+  age_stats[i,"coeff"] = coef(age_mod)$Hospital[1,"Age"]
   
   # extract 95% CI
   age_stats[i,"lower95ci"] = confint(age_mod)["Age",][1]
@@ -48,7 +48,7 @@ for (i in 1:5) {
 #### SAVE ######################################################################
 
 # save resulting table 
-write.csv(age_stats,"Output/age_wholebrain_stats.csv", row.names = F)
+write.csv(age_stats,"Output/age_wholebrain_stats_new.csv", row.names = F)
 
 
 

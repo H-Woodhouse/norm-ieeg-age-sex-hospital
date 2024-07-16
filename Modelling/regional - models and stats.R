@@ -1,7 +1,7 @@
 ################################################################################
 
 ## Script to run Age only LMMs investigate the effect of age on log rel BP in
-## each band at the regional level, with Site as a random effect
+## each band at the regional level, with Hospital as a random effect
 ## Sex has now been dropped
 ## Relevant model summaries extracted and saved.
 
@@ -14,9 +14,9 @@ library(lme4)        # mixed models
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
-BPdata_p= read.csv("Data/ROI1_relBP_pooled.csv")      # pooled data
-ppr = read.csv("Data/ROI1_subj_per_ROI_pooled.csv")   # patients per ROI
-spr = read.csv("Data/ROI1_sites_per_ROI_pooled.csv")  # sites per ROI
+BPdata_m= read.csv("Data/Preprocessing/ROI1_RBP_mirrored.csv")            # pooled data
+ppr = read.csv("Data/Preprocessing/ROI1_patients_per_ROI_mirrored.csv")   # patients per ROI
+hpr = read.csv("Data/Preprocessing/ROI1_hospitals_per_ROI_mirrored.csv")  # sites per ROI
 
 # band names
 band = c("delta", "theta", "alpha", "beta", "gamma")
@@ -27,12 +27,12 @@ band = c("delta", "theta", "alpha", "beta", "gamma")
 
 # create index for ROIs for looping
 # note, using the labels from right hemisphere / RH in pooled data
-BPdata_p = BPdata_p %>%
+BPdata_m = BPdata_m %>%
   mutate(ROI_index=as.numeric(factor(ROI_R))) %>%
   relocate(ROI_index, .after = ROI_R)
 
 # list of ROIs 
-regions_RH=unique(BPdata_p$ROI_R)
+regions_RH=unique(BPdata_m$ROI_R)
 N=length(regions_RH)
 
 # stats/column names of data frame
@@ -53,16 +53,16 @@ mod_summaries[c(stats_all)]=NA
 for (fb in band) {
   
   # model formula for particular FB
-  model = formula(paste0(fb,"BP~Age+(1|Site)"))
+  model = formula(paste0(fb,"BP~Age+(1|Hospital)"))
   
   # running model for that band in every ROI 
   for (i in 1:N) {
     
     # model
-    mod = lmer(model, data = BPdata_p[BPdata_p$ROI_index==i,])
+    mod = lmer(model, data = BPdata_m[BPdata_m$ROI_index==i,])
     
     # pulling out coef summaries (value, se)
-    mod_summaries[i,paste0(fb,"_coef")]     = coef(mod)$Site[1,"Age"]
+    mod_summaries[i,paste0(fb,"_coef")]     = coef(mod)$Hospital[1,"Age"]
     mod_summaries[i,paste0(fb,"_SE")]       = summary(mod)$coefficients["Age","Std. Error"]
     
     # binary variable indicating singularity
@@ -79,19 +79,19 @@ for (fb in band) {
 #### ATTACH NO OF PATIENTS AND SITES PER REGION ################################
 
 mod_summaries = mod_summaries %>% left_join(ppr) %>% 
-  rename(no.pts=n) %>% 
+  dplyr::rename(no.pts=n) %>% 
   relocate(no.pts, .after = ROI_index) %>%
-  left_join(spr) %>%
-  rename(no.sites=n) %>%
-  relocate(no.sites, .after = no.pts) %>%
+  left_join(hpr) %>%
+  dplyr::rename(no.hosp=n) %>%
+  relocate(no.hosp, .after = no.pts) %>%
   select(-ROI_index) %>%
-  rename(ROI_index=ROI_R)
+  dplyr::rename(ROI_index=ROI_R)
 
 
 #### SAVE ######################################################################
 
 # save resulting table 
-write.csv(mod_summaries,"Output/age_ROI_stats.csv", row.names = F)
+write.csv(mod_summaries,"Output/age_ROI_stats_new.csv", row.names = F)
 
 
 

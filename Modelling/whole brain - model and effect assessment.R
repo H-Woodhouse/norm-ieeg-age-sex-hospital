@@ -17,7 +17,7 @@ library(performance)   # calculates lots of model comparison stats
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
-BPdata_full = read.csv("Data/ROI1_relBP_full.csv")
+BPdata_full = read.csv("Data/Preprocessing/ROI1_RBP_full.csv")
 
 band = c("delta","theta","alpha","beta","gamma")
 
@@ -50,10 +50,10 @@ for (i in 1:length(band)) {
   
   # model with each possible fixed effects structure
   # REML = F, comparing across structures
-  mod_null = lmer(formula(paste0(band[i],"BP~        (1|Site)")), data=BPdata_full, REML = F)
-  mod_age  = lmer(formula(paste0(band[i],"BP~Age+    (1|Site)")), data=BPdata_full, REML = F)
-  mod_sex  = lmer(formula(paste0(band[i],"BP~Sex+    (1|Site)")), data=BPdata_full, REML = F)
-  mod_full = lmer(formula(paste0(band[i],"BP~Age+Sex+(1|Site)")), data=BPdata_full, REML = F)
+  mod_null = lmer(formula(paste0(band[i],"BP~        (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_age  = lmer(formula(paste0(band[i],"BP~Age+    (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_sex  = lmer(formula(paste0(band[i],"BP~Sex+    (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_full = lmer(formula(paste0(band[i],"BP~Age+Sex+(1|Hospital)")), data=BPdata_full, REML = F)
   
   ## MODEL EVALUATION
   
@@ -99,4 +99,15 @@ R2_ICC = R2_ICC %>% mutate_if(is.numeric, function(x) x*100)
 
 # get rid of things which now just correspond to gamma (last in loop)
 rm(mod_null,mod_age,mod_sex,mod_full,model_assess)
+
+
+#### INVESTIGATING ALPHA INTERACTION ###########################################
+
+alpha_full = lmer(alphaBP ~ Age + Sex + (1|Hospital), data = BPdata_full)
+alpha_interact = lmer(alphaBP ~ Age + Sex + Age*Sex + (1|Hospital), data = BPdata_full)
+
+compare_performance(alpha_full, alpha_interact,estimator="ML", metrics = c("AIC","BIC"))[,c(1,3,5)]
+anova(alpha_full,alpha_interact)
+confint(alpha_full)
+confint(alpha_interact)
 
