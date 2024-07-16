@@ -1,7 +1,6 @@
 ################################################################################
 
 ## Script to 'zoom in' on MT in each band to show how RBP is changing with age
-## Also plot the 95% CIs on b_age for each band at the whole brain level
 
 
 
@@ -14,8 +13,7 @@ library(grid)        # combining figures
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
-BPdata_p = read.csv("Data/ROI1_relBP_pooled.csv")     # example ROIs
-CIs = read.csv("Output/age_wholebrain_stats.csv")     # for whole brain CIs
+BPdata_p = read.csv("Data/Preprocessing/ROI1_RBP_mirrored.csv")     
 
 
 # chosen ROI: will middle temporal, highest populated region 
@@ -45,7 +43,7 @@ rm(BPdata_p)
 for (i in 1:5) {
   
   # model formula for particular FB
-  model = formula(paste0(band[i],"BP~Age+(1|Site)"))
+  model = formula(paste0(band[i],"BP~Age+(1|Hospital)"))
   
   # model
   age_mod = lmer(model, data = BPdata_MT)
@@ -81,32 +79,13 @@ bet = BPdata_MT %>%
 
 gam = BPdata_MT %>%
   ggplot(aes(x = Age, y = gammaBP)) + gg_all + ylab(expression("RBP("*gamma*")")) +
-  geom_line(aes(y = AgeFit.gamma),col="red",linewidth=1)
+  geom_line(aes(y = AgeFit.gamma),col="black",linewidth=1)
 
 # combine 
 
 pdf("Output/MT_scatter.pdf",width = 8, height = 2)
 grid.newpage()
 grid.draw(cbind(ggplotGrob(del),ggplotGrob(the),ggplotGrob(alp),ggplotGrob(bet),ggplotGrob(gam)))
-dev.off()
-
-
-#### CONFIDENCE INTERVAL PLOT (WHOLE BRAIN) ####################################
-
-
-# create factor for whole brain
-CIs = CIs %>% mutate(Band=factor(Band, levels=Band))
-
-# plot
-pdf("Output/wholebrain_CIs3.pdf",width = 8, height = 3)
-ggplot(data = CIs) +
-  geom_hline(yintercept = 0, linewidth = 2, color = "white") +
-  geom_hline(yintercept = 0, linetype = 2, col="gray30") +
-  geom_segment(mapping = aes(y=lower95ci,yend=upper95ci,x=Band, xend=Band), lineend="butt") +
-  xlab(NULL) + ylab(expression(italic(hat(b)[age]))) + scale_x_discrete(label=(fb_lab)) + theme_minimal() +
-  theme(panel.grid.major.x = element_blank(),axis.title.y=element_text(margin=margin(t=10))) + 
-  scale_y_continuous(breaks=c(-0.0008,-0.0004,0,0.0004,0.0008),limits = c(-0.0008,0.0008)) +
-  geom_point(aes(y=coeff,x=Band)) 
 dev.off()
 
 

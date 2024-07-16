@@ -160,5 +160,5 @@ beta_age = beta_age %>%
   select(-c(Area,Hemisphere,Cortical))
 
 # save
-write.csv(beta_age, "sup-results/beta_age_coeffs_ROI1.csv", row.names=FALSE)
+write.csv(beta_age, "b_age_coeffs_ROI1.csv", row.names=FALSE)
 
