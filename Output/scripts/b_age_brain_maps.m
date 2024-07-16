@@ -26,7 +26,7 @@ rmpath(genpath([path_fieldtrip '/compat'])); % remove fieldtrip compatibility fo
 
 % model summaries in required format from R
 bands = {'delta','theta','alpha','beta','gamma'};
-b_ages = readtable("b_age_coeffs_ROI1.csv");               % check file
+b_ages = readtable("sup-results/b_age_coeffs_ROI1_SUP.csv");               % check file
 b_ages_matrix=table2array(b_ages(:,strcat(bands, '_coef')));
 title_labels = {'δ','θ','α','β','γ'};
 
@@ -50,8 +50,8 @@ min(b_ages_matrix)
 % plot
 % can show/hide band titles in function code
 vis_norm_map_on_brain_T(b_ages_matrix,bands,title_labels,atlas_cortical,'Colormap',bluewhitered(256), ...
-    'CLim',[-0.0015,0.0015],'View',{'top'}, 'FontSize',20, ...
+    'CLim',[-0.002,0.002],'View',{'top'}, 'FontSize',20, ...
     'ColorbarLocation','westoutside','TitleFontSize',42)
 
 % save (too complex for vector format)
-saveas(gcf, 'age_coeffs_map_ROI1.png')
+saveas(gcf, 'sup-results/age_coeffs_map_ROI1_SUP.png')

@@ -1,7 +1,7 @@
 ################################################################################
 
 ## Script to produce required material for supplementary
-## Namely: symmetry checking, parcellation checking, age dist per ROI checking
+## Namely: symmetry checking, parcellation checking
 
 
 
@@ -15,8 +15,8 @@ library(lme4)        # mixed models
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
-#BPdata = read.csv("Data/ROI1_relBP_full.csv")
-BPdata = read.csv("Data/ROI2_relBP_full.csv")
+#BPdata = read.csv("Data/Preprocessing/ROI1_RBP_full.csv")
+BPdata = read.csv("Data/Preprocessing/ROI2_RBP_full.csv")
 
 # load ROI info from DB
 #ROI_info=read.csv("Data/ROI1_info.csv",header = T)
@@ -28,7 +28,7 @@ BPdata = BPdata %>%
 
 
 
-#### CHECKING SYMMETRY IS VALID & RESULTS HOLD IN ROI2 #########################
+#### CHECKING SYMMETRY IS VALID & RESULTS HOLD IN UNMIRRORED ROI1/2 ############
 
 ## this is repeating the brain coefficients figure without folding/pooling data
 ## do once in ROI1 and repeat in ROI2 
@@ -57,7 +57,7 @@ age_coefs[c(stats)]=NA
 for (fb in band) {
   
   # model formula for particular FB
-  model = formula(paste0(fb,"BP~Age+(1|Site)"))
+  model = formula(paste0(fb,"BP~Age+(1|Hospital)"))
   
   # running model for that band in every ROI 
   for (i in 1:N) {
@@ -66,7 +66,7 @@ for (fb in band) {
     mod = lmer(model, data = BPdata[BPdata$ROI_loop==i,])
     
     # pulling out coefficient of age
-    age_coefs[i,paste0(fb,"_coef")] = coef(mod)$Site[1,"Age"]
+    age_coefs[i,paste0(fb,"_coef")] = coef(mod)$Hospital[1,"Age"]
     
     # binary variable indicating singularity
     age_coefs[i,paste0(fb,"_singular")] = as.numeric(isSingular(mod))
@@ -74,6 +74,7 @@ for (fb in band) {
 }
 
 # how many singular when not pooled
+# 28 ROI1, 61 ROI2
 sum(age_coefs[,8:12])
 
 ## PLOT DF ##
@@ -86,7 +87,7 @@ age_coefs = age_coefs %>%
   rename(names=ROI_name)
 
 # export
-write.csv(age_coefs, "Output/sup-results/beta_age_coeffs_ROI2_SUP.csv", row.names=FALSE)
+write.csv(age_coefs, "Output/sup-results/b_age_coeffs_ROI2_SUP.csv", row.names=FALSE)
 
 rm(mod,fb,i,model,stats)
 
