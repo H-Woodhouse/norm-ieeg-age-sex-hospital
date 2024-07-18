@@ -12,7 +12,7 @@ library(lme4)          # linear mixed models
 library(sjPlot)        # plotting lme4 results
 library(RColorBrewer)  # more colour palettes
 library(ggpubr)        # arranging plots
-theme_set(theme_classic())
+theme_set(theme_classic(base_size = 16))
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
@@ -26,38 +26,45 @@ ggplot(aes(x=Age),data=ages) + geom_histogram(binwidth = 1) + facet_grid(vars(Ho
 
 
 
-#### MODELLING & PLOTTING MAIN #################################################
+#### MODELLING & PLOTTING DELTA TO VISUALISE HOSPITAL EFFECT ###################
 
 # model on whole brain, using the bands optimal model & all sites
 age_mod_del = lmer(deltaBP ~ Age + (1|Hospital), data = BPdata)
 
-# if plot using fitted values, don't extend past site age range, not perfectly straight
-# if plot using plot_model, points have to be on top of lines -> manual ablines
+# extract coefs
+age_model_coefs = coef(age_mod_del)$Hospital %>% 
+  rename(Intercept = `(Intercept)`, Slope = Age) %>% 
+  rownames_to_column("Hospital")
 
-# correct hospitals for geom point and drop extreme value (amongst this hosp subset)
-BPdata_hosp_vis = BPdata %>% 
+# suitable df for plotting, the retain selected hospitals
+BPdata_hosp_vis = left_join(BPdata,age_model_coefs,by="Hospital") %>% 
   filter(deltaBP<0.5) %>% 
-  filter(Hospital %in% c("UCLH", "RAMM","RAMJ"))
+  filter(Hospital %in% c("UCLH", "RAMM","RAMJ")) %>%
+  select(c(Hospital, Age, Sex, Intercept, Slope, deltaBP))
 
+# plot
 cols = brewer.pal(3, "Accent")
-coefs = coef(age_mod_del)[[1]]
+pdf("Output/hospital_effects.pdf",width=6,height = 6)
+ggplot(aes(x=Age, y=deltaBP, col=Hospital), data=BPdata_hosp_vis) +
+  geom_point(na.rm = T, alpha = 0.75) +
+  geom_abline(aes(intercept=Intercept, slope=Slope, colour=Hospital),lwd = 1.5) +
+  theme(legend.position = "none", aspect.ratio = 1) + ylab(expression("RBP("*delta*")")) +
+  scale_color_manual(values = cols)
+dev.off()
 
-ggplot(data = BPdata_hosp_vis) + 
-  geom_point(aes(x=Age,y=deltaBP,col=Hospital), alpha=0.4) +
-  geom_abline(intercept = coefs["RAMJ","(Intercept)"],slope=coefs["RAMJ","Age"], lwd=1,col=cols[1]) +
-  geom_abline(intercept = coefs["RAMM","(Intercept)"],slope=coefs["RAMM","Age"], lwd=1,col=cols[2]) +
-  geom_abline(intercept = coefs["UCLH","(Intercept)"],slope=coefs["UCLH","Age"], lwd=1,col=cols[3]) +
-  theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*delta*")")) +
-  scale_color_manual(values = cols, labels=c("Jefferson Hosp.","Mayo Clinic","University College London Hosp."))
+
+# segments to find and add to plot
+BPdata_hosp_vis %>% filter(Age==24 & Sex=="M") %>% select(Pat_ID,Hospital,Age,Sex) %>% distinct()
+
 
 
 #### MODELLING & PLOTTING SUPPLEMENTARY ########################################
 
 # extension to all sites and bands 
 
-# 15 colour palette
-c15 = c("dodgerblue2","#E31A1C","green4","#6A3D9A","#FF7F00","black", "gold1","skyblue2",
-        "#FB9A99","palegreen2", "#CAB2D6", "#FDBF6F","gray70", "khaki2", "maroon")
+# 15 colour palette - retain same for Jefferson, UCL, Mayo
+c15 = c("dodgerblue2","#E31A1C","green4","#6A3D9A","#FF7F00","black", "#7fc97f","#beaed4",
+        "#FB9A99","gold2", "gray70", "palegreen2","#00ffff", "#FDC086", "maroon")
 
 # each model on all sites
 age_mod_del = lmer(deltaBP ~ Age + (1|Hospital), data = BPdata)
@@ -92,16 +99,58 @@ gam = plot_model(age_mod_gam, type="pred", terms=c("Age","Hospital"),ci.lvl = NA
 
 ggarrange(del,the,alp,bet,gam, ncol=2, nrow=3, common.legend = T,legend = "top")
 
-#### SEGMENTS TO LOOK AT #######################################################
-
-BPdata_hosp_vis %>% filter(Age==24 & Sex=="M") %>% select(Pat_ID,Hospital,Age,Sex) %>% distinct()
 
 
 #### SEX EFFECT ################################################################
 
-full_mod_del = lmer(deltaBP ~ Age + Sex + (1|Site), data = BPdata_p)
-full_mod_the = lmer(thetaBP ~ Age + Sex + (1|Site), data = BPdata_p)
+# models
+full_mod_del = lmer(deltaBP ~ Age + Sex + (1|Hospital), data = BPdata)
+full_mod_the = lmer(thetaBP ~ Age + Sex + (1|Hospital), data = BPdata)
+full_mod_alp = lmer(alphaBP ~ Age + Sex + (1|Hospital), data = BPdata)
+full_mod_bet = lmer(betaBP  ~ Age + Sex + (1|Hospital), data = BPdata)
+full_mod_gam = lmer(gammaBP ~ Age + Sex + (1|Hospital), data = BPdata)
 
-plot_model(full_mod_del, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
-  geom_point(aes(x=Age,y=deltaBP,col=Sex),data=BPdata_p, alpha=0.6,inherit.aes = FALSE) +
+# extract coefs
+del_model_coefs = coef(full_mod_del)$Hospital %>% 
+  rename(del_int = `(Intercept)`, del_slope = Age) %>% 
+  rownames_to_column("Hospital")
+the_model_coefs = coef(full_mod_the)$Hospital %>% 
+  rename(the_int = `(Intercept)`, the_slope = Age) %>% 
+  rownames_to_column("Hospital")
+alp_model_coefs = coef(full_mod_alp)$Hospital %>% 
+  rename(alp_int = `(Intercept)`, alp_slope = Age) %>% 
+  rownames_to_column("Hospital")
+bet_model_coefs = coef(full_mod_bet)$Hospital %>% 
+  rename(bet_int = `(Intercept)`, bet_slope = Age) %>% 
+  rownames_to_column("Hospital")
+gam_model_coefs = coef(full_mod_gam)$Hospital %>% 
+  rename(gam_int = `(Intercept)`, gam_slope = Age) %>% 
+  rownames_to_column("Hospital")
+
+# suitable df for plotting
+BPdata_sex_vis = left_join(BPdata,del_model_coefs,by="Hospital") %>% select(c(Age,Sex,deltaBP,thetaBP,alphaBP,betaBP,gammaBP))
+                     
+
+
+
+del_sex = plot_model(full_mod_del, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
+  geom_point(aes(x=Age,y=deltaBP,col=Sex),data=BPdata, alpha=0.4,inherit.aes = FALSE) +
   theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*delta*")"))
+
+the_sex = plot_model(full_mod_the, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
+  geom_point(aes(x=Age,y=thetaBP,col=Sex),data=BPdata, alpha=0.4,inherit.aes = FALSE) +
+  theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*theta*")"))
+
+alp_sex = plot_model(full_mod_alp, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
+  geom_point(aes(x=Age,y=alphaBP,col=Sex),data=BPdata, alpha=0.4,inherit.aes = FALSE) +
+  theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*alpha*")"))
+
+bet_sex = plot_model(full_mod_bet, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
+  geom_point(aes(x=Age,y=betaBP,col=Sex),data=BPdata, alpha=0.4,inherit.aes = FALSE) +
+  theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*beta*")"))
+
+gam_sex = plot_model(full_mod_gam, type="pred", terms=c("Age","Sex"),ci.lvl = NA, title="") +
+  geom_point(aes(x=Age,y=gammaBP,col=Sex),data=BPdata, alpha=0.4,inherit.aes = FALSE) +
+  theme(aspect.ratio = 1, legend.position = "top") + ylab(expression("RBP("*gamma*")"))
+
+ggarrange(del_sex,the_sex,alp_sex,bet_sex,gam_sex, ncol=5, nrow=1, common.legend = T,legend = "top")

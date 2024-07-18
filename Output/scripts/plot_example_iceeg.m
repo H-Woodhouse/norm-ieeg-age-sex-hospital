@@ -11,26 +11,28 @@ addpath('~/MATLAB/lib/Viewing icEEG/')
 
 %%  plot iEEG
 
-patient_ID='UCLH803';
-%col=[0.50 0.79 0.50]; % jefferson
-col=[0.99 0.75 0.53];  % uclh
+% patient ID and site colour
+patient_ID='RAMJ1277';
+%patient_ID='RAMM1167';
+%patient_ID='UCLH803';
+
+col=[0.50 0.79 0.50]; % jefferson
 %col=[0.75 0.68 0.83];  % mayo
-
-% set plot options
-plot_opts = struct();
-plot_opts.offset = 200;     % higher number = more space between traces
-plot_opts.plot_labels = true;    % plot labels (supplied in loop)
-fig_num=1;
-
+%col=[0.99 0.75 0.53];  % uclh
 
 % load workspace
 load([patient_ID '.mat'])
 
 % time vector, in seconds
 t = (1:size(eeg_data,2))/eeg_fs;
-disp(['Segment is ' num2str(max(t)) ' seconds long']) % print segment length
+disp(['Segment is ' num2str(max(t)) ' seconds long'])
 
-% add channel labels to plot
+% set plot options
+plot_opts = struct();
+plot_opts.offset = 200;          % higher number = more space between traces
+plot_opts.plot_labels = false;    
+
+% add channel labels to plot - currently not adding
 plot_opts.labels = eeg_channels;
 
 % colour (same for all chan)
@@ -40,10 +42,14 @@ plot_opts.clrs=colmat;
 %%% plot EEG traces
         
 % plot eeg
-f=figure(1);
+f=figure(3);
 vis_plot_eeg(t,eeg_data,plot_opts);
-set(f,'units','centimeters','position',[2 2 50 30],'visible','off'); % set figure position and size
-title(patient_ID)
+set(gca,'XTickLabel',[])
+set(f,'units','centimeters','position',[1 1 20 13]);
+%title(patient_ID)
+%ylabel('Channels')
+%xlabel('Time')
      
 % save
-save_plot(f,pwd,patient_ID,'jpeg')
+save_plot(f,pwd,patient_ID,'pdf')
+%exportgraphics(f, [patient_ID '.pdf'], 'ContentType', 'vector')
