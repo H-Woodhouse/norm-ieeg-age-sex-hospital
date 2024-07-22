@@ -10,6 +10,7 @@
 library(tidyverse)     # data frames & ggplot 
 library(lme4)          # linear mixed models
 library(sjPlot)        # plotting lme4 results
+library(ggeffects)     # for plotting
 library(RColorBrewer)  # more colour palettes
 library(ggpubr)        # arranging plots
 theme_set(theme_classic())
