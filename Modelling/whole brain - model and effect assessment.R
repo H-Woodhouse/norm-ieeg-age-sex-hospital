@@ -41,8 +41,8 @@ band = c("delta","theta","alpha","beta","gamma")
 
 # df for assessing fix/ran effects
 # (model assessments will be stored in list in for loop, one per band)
-R2_ICC = data.frame(matrix(ncol=7,nrow=5))
-colnames(R2_ICC) = c("Band","R2_m_full","ICC_full","R2_m_age","ICC_age","R2_m_sex","ICC_sex")
+R2_ICC = data.frame(matrix(ncol=9,nrow=5))
+colnames(R2_ICC) = c("Band","R2_m_int","ICC_int","R2_m_full","ICC_full","R2_m_age","ICC_age","R2_m_sex","ICC_sex")
 
 for (i in 1:length(band)) {
   
@@ -50,10 +50,11 @@ for (i in 1:length(band)) {
   
   # model with each possible fixed effects structure
   # REML = F, comparing across structures
-  mod_null = lmer(formula(paste0(band[i],"BP~        (1|Hospital)")), data=BPdata_full, REML = F)
-  mod_age  = lmer(formula(paste0(band[i],"BP~Age+    (1|Hospital)")), data=BPdata_full, REML = F)
-  mod_sex  = lmer(formula(paste0(band[i],"BP~Sex+    (1|Hospital)")), data=BPdata_full, REML = F)
-  mod_full = lmer(formula(paste0(band[i],"BP~Age+Sex+(1|Hospital)")), data=BPdata_full, REML = F)
+  mod_null = lmer(formula(paste0(band[i],"BP~                (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_age  = lmer(formula(paste0(band[i],"BP~Age+            (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_sex  = lmer(formula(paste0(band[i],"BP~Sex+            (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_full = lmer(formula(paste0(band[i],"BP~Age+Sex+        (1|Hospital)")), data=BPdata_full, REML = F)
+  mod_int  = lmer(formula(paste0(band[i],"BP~Age+Sex+Age*Sex+(1|Hospital)")), data=BPdata_full, REML = F)
   
   ## MODEL EVALUATION
   
@@ -61,16 +62,17 @@ for (i in 1:length(band)) {
   model_assess = list()
   
   # BIC and AIC
-  model_assess$IC = compare_performance(mod_null, mod_age, mod_sex, mod_full, estimator="ML", metrics = c("AIC","BIC"))[,c(1,3,5)]
+  model_assess$IC = compare_performance(mod_null, mod_age, mod_sex, mod_full,mod_int, estimator="ML", metrics = c("AIC","BIC"))[,c(1,3,5)]
   
   # likelihood ratio -- null v effect and effect v full
   model_assess$LRT=list(null_age=anova(mod_null,mod_age),
                         null_sex=anova(mod_null,mod_sex),
                         age_full=anova(mod_age,mod_full),
-                        sex_full=anova(mod_sex,mod_full))
+                        sex_full=anova(mod_sex,mod_full),
+                        full_int=anova(mod_full,mod_int))
   
   # profiled confidence interval (excludes null)
-  model_assess$CI_prof=list(age=confint(mod_age),sex=confint(mod_sex),full=confint(mod_full))
+  model_assess$CI_prof=list(age=confint(mod_age),sex=confint(mod_sex),full=confint(mod_full),int=confint(mod_int))
   
   # give frequency band specific name
   assign(paste0(band[i],"_model_assess"),model_assess)
@@ -78,6 +80,10 @@ for (i in 1:length(band)) {
   ## EFFECTS EVALUATION
   
   R2_ICC$Band[i] = band[i]
+  
+  # interaction model
+  R2_ICC$R2_m_int[i]  = r2_nakagawa(mod_int)$R2_marginal
+  R2_ICC$ICC_int[i]   = icc(mod_int)$ICC_adjusted
   
   # full model 
   R2_ICC$R2_m_full[i] = r2_nakagawa(mod_full)$R2_marginal
@@ -100,14 +106,4 @@ R2_ICC = R2_ICC %>% mutate_if(is.numeric, function(x) x*100)
 # get rid of things which now just correspond to gamma (last in loop)
 rm(mod_null,mod_age,mod_sex,mod_full,model_assess)
 
-
-#### INVESTIGATING ALPHA INTERACTION ###########################################
-
-alpha_full = lmer(alphaBP ~ Age + Sex + (1|Hospital), data = BPdata_full)
-alpha_interact = lmer(alphaBP ~ Age + Sex + Age*Sex + (1|Hospital), data = BPdata_full)
-
-compare_performance(alpha_full, alpha_interact,estimator="ML", metrics = c("AIC","BIC"))[,c(1,3,5)]
-anova(alpha_full,alpha_interact)
-confint(alpha_full)
-confint(alpha_interact)
 
