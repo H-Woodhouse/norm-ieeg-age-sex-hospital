@@ -13,6 +13,7 @@
 library(tidyverse)            # data frames & ggplot
 library(ggpubr)               # add stats (corr coef) to ggplot
 library(gridExtra)            # combining ggplots
+library(lme4)                 # mixed models
 
 # data
 setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
@@ -115,3 +116,14 @@ for (i in 1:5) {
 
 ggplot(data = uclh, aes(x=op_type,y=deltaBP)) + geom_violin()
 
+
+
+#### CORR CHECK 2 ##############################################################
+
+BPdata_onset = BPdata_f %>% drop_na(Age_onset)
+
+del_age = lmer(gammaBP~Age_onset+(1|Hospital),data=BPdata_onset, REML = F)
+del_onset = lmer(gammaBP~Age+Age_onset+(1|Hospital),data=BPdata_onset, REML = F)
+
+anova(del_age,del_onset)
+cor.test(BPdata_onset$Age,BPdata_onset$Age_onset)
