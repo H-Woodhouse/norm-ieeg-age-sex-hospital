@@ -2,12 +2,10 @@
 
 Data comprises the final normative data frames ready for modelling. There is:
 - Details on the scale 36 parcellation ('ROI1'), inc. names, labels, xyz coords, hemisphere, cortical
-- The same for the scale 60 parcellation ('ROI2') rqd. for supp. only
-- A df with Subj ID / Site / Age / Sex / ROI / RBP in five freq. bands, for ROI1. The main data table.
-- The same for ROI2, for supp. only
-- The same ROI1 RBP table, but this time symmetric regions are pooled, increasing sample size per region
-- The number of sites per region in the pooled ROI1 RBP data
-- The number of subject per region in the ROI1 RBP data
+- A df with Subj ID / Hospital / Age / Age_onset / Sex / ROI / RBP in five freq. bands, for ROI1. The main data table.
+- The same ROI1 RBP table, but this time symmetric regions are mirrored, increasing sample size per region
+- The number of hospitals per region in the mirrored ROI1 RBP data
+- The number of subjects per region in the mirrored ROI1 RBP data
 
 Modelling has three modelling scripts:
 - Whole brain - model and effect assessment.R is used to determine the optimal fixed effect structure (Methods) and then evaluate the importance of fixed & random effects (Results 3.1-3.3)
