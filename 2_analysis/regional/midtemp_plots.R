@@ -13,7 +13,7 @@ library(lme4)        # linear mixed models
 library(grid)        # combining figures 
 
 # data
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
+setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital")
 BPdata_m = read.csv("1_data/ROI1_mirrored_RBP.csv")     
 
 

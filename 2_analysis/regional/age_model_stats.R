@@ -15,7 +15,7 @@ library(tidyverse)   # dataframes
 library(lme4)        # mixed models
 
 # data
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
+setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/")
 BPdata_m= read.csv("1_data/ROI1_mirrored_RBP.csv")        # mirrored data
 spr = read.csv("1_data/ROI1_mirrored_subj_per_ROI.csv")   # subj per ROI
 hpr = read.csv("1_data/ROI1_mirrored_hosp_per_ROI.csv")   # hosp per ROI

@@ -17,11 +17,11 @@ conflict_prefer("filter", "dplyr")
 theme_set(theme_minimal(base_size = 24))
 
 # import summaries
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/3_output/")
+setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/3_output/")
 mod_summaries = read.csv("regional_age_model_stats.csv")
 
 # load ROI info from DB
-ROI1_info=read.csv("/media/b6036780/8TB1/norm-ieeg-age-sex-site/1_data/ROI1_info.csv")
+ROI1_info=read.csv("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/1_data/ROI1_info.csv")
 
 # colours
 fb_colors=c("#3366ff","#bf80ff","#ff00bf","#3de600","#00cccc")

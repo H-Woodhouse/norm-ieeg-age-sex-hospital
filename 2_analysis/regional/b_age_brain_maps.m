@@ -11,14 +11,14 @@
 
 % working directory
 % check (main results or supp?)
-cd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/3_output")
+cd("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/3_output")
 
 % pipeline containing brain plotting functions
-path_plot_fn = '/media/b6036780/8TB1/norm-ieeg-age-sex-site/5_MATLAB/plotting/';
+path_plot_fn = '/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/5_MATLAB/plotting/';
 addpath(genpath(path_plot_fn))
 
 % Fieldtrip for brain surface plots
-path_fieldtrip = '/media/b6036780/8TB1/norm-ieeg-age-sex-site/5_MATLAB/fieldtrip-20230215';  
+path_fieldtrip = '/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/5_MATLAB/fieldtrip-20230215';  
 addpath(genpath(path_fieldtrip));
 rmpath(genpath([path_fieldtrip '/compat'])); % remove fieldtrip compatibility folder so don't duplicate matlab functions
 

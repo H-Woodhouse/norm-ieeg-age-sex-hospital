@@ -17,7 +17,7 @@ library(performance)   # calculates lots of model comparison stats
 
 
 # data
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
+setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-hospital/")
 BPdata_full = read.csv("1_data/ROI1_wholebrain_RBP.csv")
 
 band = c("delta","theta","alpha","beta","gamma")
