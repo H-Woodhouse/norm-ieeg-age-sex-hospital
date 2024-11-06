@@ -1,10 +1,14 @@
 ################################################################################
 
-## Script to run linear mixed models at the whole brain level to investigate
-## the optimal fixed effect structure (none,age,sex,both,interaction) of the
-## LMM and to quantify the importance of age, sex, hospital for explaining
-## variation in log RBP
-## all with hospital as a random effect, age & sex fixed effects
+## Script to fit and assess linear mixed models at the whole brain level
+##
+## METHODS 2.5:
+## investigate the optimal fixed effect structure of the LMM, either null/none, 
+## age, sex, both or interaction
+##
+## RESULS 3.1-3: 
+## quantify the importance of age, sex, hospital for explaining variation in
+## log RBP all with hospital as a random effect, age & sex fixed effects
 
 
 
@@ -13,14 +17,10 @@
 # packages 
 library(dplyr)         # data frames
 library(lme4)          # mixed models
-library(performance)   # calculates lots of model comparison stats
-
+library(performance)   # calculates model comparison stats
 
 # data
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site/")
-BPdata_full = read.csv("1_data/ROI1_wholebrain_RBP.csv")
-
-band = c("delta","theta","alpha","beta","gamma")
+BPdata_full = read.csv("../1_data/ROI1_wholebrain_RBP.csv")
 
 
 
@@ -36,16 +36,22 @@ band = c("delta","theta","alpha","beta","gamma")
 
 #### MODEL PERFORMANCE & EFFECT IMPORTANCE ASSESSMENTS #########################
 
-# loop over bands
-# for each band, fit all models under consideration 
-# extract and store model assessments, and effects assessments
+# loop over bands, for each band, fit all models under consideration 
+# extract and store model & effects assessments
+# model assessments will be stored in list, one per band
+# effect assessments will be stored in a data frame 
 
-# df for assessing fix/ran effects
-# (model assessments will be stored in list in for loop, one per band)
+# effects data frame
 R2_ICC = data.frame(matrix(ncol=9,nrow=5))
 colnames(R2_ICC) = c("Band","R2_m_int","ICC_int","R2_m_full","ICC_full","R2_m_age","ICC_age","R2_m_sex","ICC_sex")
 
+# for looping
+band = c("delta","theta","alpha","beta","gamma")
+
+
 for (i in 1:length(band)) {
+  
+  print(paste0("Assessing ", band[i], " (band ", i, "/5)"))
   
   ## MODELS
   
@@ -100,11 +106,11 @@ for (i in 1:length(band)) {
   
 }
 
-# convert effects stats to % and reduce dp
+# convert effects stats to percentages and reduce decimal places
 R2_ICC = R2_ICC %>% mutate_if(is.numeric, round, digits=4)
 R2_ICC = R2_ICC %>% mutate_if(is.numeric, function(x) x*100)
 
-# get rid of things which now just correspond to gamma (last in loop)
-rm(mod_null,mod_age,mod_sex,mod_full,model_assess)
+# get rid of loop specifics/last loop run
+rm(mod_null,mod_age,mod_sex,mod_full,mod_int,model_assess,i,band)
 
 
