@@ -17,8 +17,7 @@ library(ggpubr)      # arranging plots
 # set working directory to script location (2_analysis)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-# folder for storing results, find any output in here
-# (included in all scripts with outputs -> warnings off)
+# folder for storing results (included in all scripts with outputs -> warnings off)
 dir.create("../3_output", showWarnings = F)
 
 # mirrored RBP data
