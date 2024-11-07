@@ -22,11 +22,14 @@ library(RColorBrewer)  # more colour palettes
 library(ggpubr)        # arranging plots
 theme_set(theme_classic())
 
+# set working directory to script location (2_analysis)
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+# folder for storing results (included in all scripts with outputs -> warnings off)
+dir.create("../3_output", showWarnings = F)
+
 # data
 BPdata = read.csv("../1_data/ROI1_wholebrain_RBP.csv") 
-
-# storing results (included in all scripts with outputs -> warnings off)
-dir.create("../3_output", showWarnings = F)
 
 band=c("delta","theta","alpha","beta","gamma")
 
@@ -54,19 +57,25 @@ ggplot(aes(x=Age),data=ages) + geom_histogram(binwidth = 1) + facet_grid(vars(Ho
 # include data and model & retain only selected hospitals
 # for visualisation purposes, drop singular point that is an outlier when using
 # only these hospitals
-hosp_vis_df = left_join(BPdata,age_model_coefs,by="Hospital") %>% 
+hosp_effects_df = left_join(BPdata,age_model_coefs,by="Hospital") %>% 
   filter(deltaBP<0.5) %>% 
   filter(Hospital %in% c("UCLH", "RAMM","RAMJ")) %>%
   select(c(Hospital, Pat_ID, Age, Sex, Intercept, Slope, deltaBP))
 
-
 # plot
-pdf("../3_output/hospital_effect.pdf",width=6,height = 6)
-ggplot(aes(x=Age, y=deltaBP, col=Hospital), data=hosp_vis_df) +
+hosp_effects_plot =
+  ggplot(aes(x=Age, y=deltaBP, col=Hospital), data=hosp_effects_df) +
   geom_point(na.rm = T, alpha = 0.75) +
   geom_abline(aes(intercept=Intercept, slope=Slope, colour=Hospital),lwd = 1.5) +
   theme(legend.position = "top", aspect.ratio = 1) + ylab(expression("RBP("*delta*")")) +
   scale_color_manual(values = brewer.pal(3, "Accent"), labels=c("Jefferson Hosp.","Mayo Clinic","University College London Hosp."))
+
+# view
+hosp_effects_plot
+
+#save
+pdf("../3_output/hospital_effect.pdf",width=6,height = 6)
+hosp_effects_plot
 dev.off()
 
 
@@ -110,12 +119,19 @@ sex_plot = function(RBP_band,label,pred_df) {
 }
 
 
-# combine to create figure for all bands with shared legend and save
-pdf("../3_output/sex_effect1.pdf",width = 8, height = 2)
-ggarrange(sex_plot("deltaBP",delta,delta_pred),
-          sex_plot("thetaBP",theta,theta_pred),
-          sex_plot("alphaBP",alpha,alpha_pred),
-          sex_plot("betaBP" ,beta ,beta_pred ),
-          sex_plot("gammaBP",gamma,gamma_pred),
-          ncol=5, nrow=1, common.legend = T,legend = "top")
+# combine to create figure for all bands with shared legend
+sex_effects_plot = 
+  ggarrange(sex_plot("deltaBP",delta,delta_pred),
+            sex_plot("thetaBP",theta,theta_pred),
+            sex_plot("alphaBP",alpha,alpha_pred),
+            sex_plot("betaBP" ,beta ,beta_pred ),
+            sex_plot("gammaBP",gamma,gamma_pred),
+            ncol=5, nrow=1, common.legend = T,legend = "top", align = "v")
+
+# view
+sex_effects_plot
+
+# save
+pdf("../3_output/sex_effect.pdf",width = 8, height = 2)
+sex_effects_plot
 dev.off()
