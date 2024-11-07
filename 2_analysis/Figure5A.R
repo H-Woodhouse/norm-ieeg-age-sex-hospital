@@ -1,7 +1,9 @@
 ################################################################################
 
-## Script to 'zoom in' on the middle temporal region in each band to 
-## show how RBP is changing with age
+## Script to 'zoom in' on the middle temporal region in each band
+## 
+## FIGURE 5A: 
+## show how RBP is changing with age across bands in a densely populated region
 
 
 
@@ -10,18 +12,17 @@
 # packages
 library(tidyverse)   # data frames & ggplot 
 library(lme4)        # linear mixed models
-library(grid)        # combining figures 
+library(ggpubr)      # arranging plots
 
-# data
-setwd("/media/b6036780/8TB1/norm-ieeg-age-sex-site")
-BPdata_m = read.csv("1_data/ROI1_mirrored_RBP.csv")     
+# set working directory to script location (2_analysis)
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
+# folder for storing results, find any output in here
+# (included in all scripts with outputs -> warnings off)
+dir.create("../3_output", showWarnings = F)
 
-# chosen ROI: will middle temporal, highest populated region 
-BPdata_MT = BPdata_m %>%
-  filter(ROI_R==62) %>%
-  select(-c(Sex, ROI_R))
-
+# mirrored RBP data
+BPdata_m = read.csv("../1_data/ROI1_mirrored_RBP.csv")     
 
 # plot settings (ROI plots)
 theme_set(theme_classic())
@@ -30,14 +31,28 @@ options(scipen=999) # no sci notation
 # band
 band=c("delta","theta","alpha","beta","gamma")
 
-# greek letters
-fb_lab=c(expression(delta),expression(theta),expression(alpha),expression(beta),expression(gamma))
+
+
+#### AGE MODEL IN MIDDLE TEMP FOR EACH FB ######################################
+
+# function to extract data for one ROI using region label
+extract_ROI_data = function(ROI_label) {
+  BPdata_m %>%
+    filter(ROI_R==ROI_label) %>%
+    select(-c(Sex, ROI_R))
+}
+
+# chosen ROI: middle temporal (label=62), highest populated region
+# to view a different region, find region labels in 1_data/ROI1_info.csv
+BPdata_regional = extract_ROI_data(62)
 
 # clear
 rm(BPdata_m)
 
+# set up mini table to record if the confidence interval on beta_age contains 0
+# in each band
+conf_int_0 = tibble(band=band, CI_0=NA)
 
-#### AGE MODEL IN MIDDLE TEMP FOR EACH FB ######################################
 
 # plotting model directly uses ggplot uses OLS - no grouping/random effect
 # diff approach ->
@@ -48,45 +63,53 @@ for (i in 1:5) {
   model = formula(paste0(band[i],"BP~Age+(1|Hospital)"))
   
   # model
-  age_mod = lmer(model, data = BPdata_MT)
+  age_mod = lmer(model, data = BPdata_regional)
   
   # fitted values
-  BPdata_MT[,paste0("AgeFit.", band[i])] = predict(age_mod, re.form = NA) 
-
+  BPdata_regional[,paste0("AgeFit.", band[i])] = predict(age_mod, re.form = NA)
+  
+  # binary indicator of whether confidence interval on beta_age contains 0
+  CI = confint(age_mod)["Age",]
+  if (sign(CI[1])!=sign(CI[2])) { 
+    conf_int_0[i,]$CI_0 = 0 
+  } else if (sign(CI[1])==sign(CI[2])) {
+      conf_int_0[i,]$CI_0 = sign(CI[1])
+      }
 }
 
+rm(CI,i,model)
 
 
 #### PLOTTING ##################################################################
 
-# each fb plot
+# function to plot fitted line over data points in each frequency band
+regional_plot = function(RBP_band,fit_band,label,linecol) {
+  BPdata_regional %>% 
+    ggplot(aes(x=Age, y=.data[[RBP_band]])) + ylab(substitute("RBP("*label*")")) +
+    geom_point(col = "darkgrey",size=0.5) + theme(aspect.ratio=1) +
+    geom_line(aes(y = .data[[fit_band]]),col=linecol,linewidth=1)
+}
 
-gg_all = list(geom_point(col = "darkgrey",size=0.5), theme(aspect.ratio=1))
 
-del = BPdata_MT %>%
-  ggplot(aes(x = Age, y = deltaBP)) + gg_all + ylab(expression("RBP("*delta*")")) +
-  geom_line(aes(y = AgeFit.delta),col="blue",linewidth=1)
+# check conf_int_0 to choose appropriate line colours
+# choosing blue for -1 (negative relationship), red for 1 (positive
+# relationship), black for 0 (no relationship) here
 
-the = BPdata_MT %>%
-  ggplot(aes(x = Age, y = thetaBP)) + gg_all + ylab(expression("RBP("*theta*")")) +
-  geom_line(aes(y = AgeFit.theta),col="blue",linewidth=1)
+# plot for each band and combine
+regional_scatter_all_bands =
+  ggarrange(regional_plot("deltaBP","AgeFit.delta",delta,"blue"),
+            regional_plot("thetaBP","AgeFit.theta",theta,"blue"),
+            regional_plot("alphaBP","AgeFit.alpha",alpha,"red"),
+            regional_plot("betaBP" ,"AgeFit.beta" ,beta ,"red"),
+            regional_plot("gammaBP","AgeFit.gamma",gamma,"black"),
+            ncol=5, nrow=1, align = "v")
 
-alp = BPdata_MT %>%
-  ggplot(aes(x = Age, y = alphaBP))+ gg_all + ylab(expression("RBP("*alpha*")")) +
-  geom_line(aes(y = AgeFit.alpha),col="red",linewidth=1)
+# view
+regional_scatter_all_bands
 
-bet = BPdata_MT %>%
-  ggplot(aes(x = Age, y = betaBP)) + gg_all + ylab(expression("RBP("*beta*")")) +
-  geom_line(aes(y = AgeFit.beta),col="red",linewidth=1)
-
-gam = BPdata_MT %>%
-  ggplot(aes(x = Age, y = gammaBP)) + gg_all + ylab(expression("RBP("*gamma*")")) +
-  geom_line(aes(y = AgeFit.gamma),col="black",linewidth=1)
-
-# combine 
-
-pdf("3_output/midtemp_scatter.pdf",width = 8, height = 2)
-grid.newpage()
-grid.draw(cbind(ggplotGrob(del),ggplotGrob(the),ggplotGrob(alp),ggplotGrob(bet),ggplotGrob(gam)))
+# save
+# change file name if changing region
+pdf("../3_output/midtemp_scatter1.pdf",width = 8, height = 2)
+regional_scatter_all_bands
 dev.off()
 
