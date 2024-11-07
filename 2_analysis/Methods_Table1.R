@@ -19,6 +19,9 @@ library(dplyr)         # data frames
 library(lme4)          # mixed models
 library(performance)   # calculates model comparison stats
 
+# set working directory to script location (2_analysis)
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
 # data
 BPdata_full = read.csv("../1_data/ROI1_wholebrain_RBP.csv")
 
