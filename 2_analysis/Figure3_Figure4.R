@@ -1,6 +1,6 @@
 ################################################################################
 
-## Script to to produce figures to demonstrate effect importance visually
+## Script to to produce figures to demonstrate fixedeffect importance visually
 ##
 ## FIGURE 3:
 ## Fit the age model in an example band (delta) then pull out 3 example
@@ -28,9 +28,10 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # folder for storing results (included in all scripts with outputs -> warnings off)
 dir.create("../3_output", showWarnings = F)
 
-# data
-BPdata = read.csv("../1_data/ROI1_wholebrain_RBP.csv") 
+# data (not mirrored)
+BPdata_full = read.csv("../1_data/ROI1_wholebrain_RBP.csv") 
 
+# frequency band labels
 band=c("delta","theta","alpha","beta","gamma")
 
 
@@ -38,14 +39,14 @@ band=c("delta","theta","alpha","beta","gamma")
 #### PLOTTING HOSPITAL EFFECT (FIGURE 3) #######################################
 
 # run the age model in delta and extract regression coefficients
-age_mod_del = lmer(deltaBP ~ Age + (1|Hospital), data = BPdata)
+age_mod_del = lmer(deltaBP ~ Age + (1|Hospital), data = BPdata_full)
 age_model_coefs = coef(age_mod_del)$Hospital %>% 
   rename(Intercept = `(Intercept)`, Slope = Age) %>% 
   rownames_to_column("Hospital")
 
 
 # keeping three reasonably well populated hospitals with similar age range
-ages = BPdata %>% filter(Hospital %in% c("UCLH", "RAMM","RAMJ")) %>%
+ages = BPdata_full %>% filter(Hospital %in% c("UCLH", "RAMM","RAMJ")) %>%
   select(Pat_ID,Hospital,Age) %>%
   distinct()
 # check
@@ -57,7 +58,7 @@ ggplot(aes(x=Age),data=ages) + geom_histogram(binwidth = 1) + facet_grid(vars(Ho
 # include data and model & retain only selected hospitals
 # for visualisation purposes, drop singular point that is an outlier when using
 # only these hospitals
-hosp_effects_df = left_join(BPdata,age_model_coefs,by="Hospital") %>% 
+hosp_effects_df = left_join(BPdata_full,age_model_coefs,by="Hospital") %>% 
   filter(deltaBP<0.5) %>% 
   filter(Hospital %in% c("UCLH", "RAMM","RAMJ")) %>%
   select(c(Hospital, Pat_ID, Age, Sex, Intercept, Slope, deltaBP))
@@ -82,7 +83,7 @@ dev.off()
 # for publication, three example icEEG segments will be shown next to the plot
 # (added in Illustrator) to complete figure 3
 # the below finds their subject IDs (looking for same age/sex)
-hosp_vis_df %>% filter(Age==33 & Sex=="M") %>% select(Pat_ID,Hospital,Age,Sex) %>% distinct()
+hosp_effects_df %>% filter(Age==33 & Sex=="M") %>% select(Pat_ID,Hospital,Age,Sex) %>% distinct()
 
 rm(age_model_coefs, ages, age_mod_del)
 
@@ -95,7 +96,7 @@ for (i in 1:length(band)) {
   
   # band-specific model
   mod = formula(paste0(band[i],"BP~Age+Sex+(1|Hospital)"))
-  model = lmer(mod, data = BPdata)
+  model = lmer(mod, data = BPdata_full)
   
   # fitted values
   pred = predict_response(model, terms = c("Age", "Sex")) %>% rename(Age=x, Sex=group)
@@ -110,7 +111,7 @@ rm(mod,i,pred,model,band)
 
 # function to plot fitted line per sex overlaid on data points in one band 
 sex_plot = function(RBP_band,label,pred_df) {
-  ggplot(aes(y=.data[[RBP_band]],x=Age, col=Sex),data=BPdata,) +
+  ggplot(aes(y=.data[[RBP_band]],x=Age, col=Sex),data=BPdata_full) +
     ylab(substitute("RBP("*label*")")) +
     geom_point(alpha=0.05, size=0.5) +
     geom_line(aes(x=Age,y=predicted,group=Sex,col=Sex),lwd=1, data=pred_df, inherit.aes = F) +
