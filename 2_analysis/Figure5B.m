@@ -5,7 +5,7 @@
 % % plot regional beta_age values on the brain (mirrored data is used but
 % % results are reflected across the midline)
 % %
-% % REQUIRE the data frame created and saved in 'regional_age_model_stats.R'
+% % REQUIRE the data frame created and saved in 'regional_stats_dataframe.R'
 % %
 % %
 %% directories and settings
@@ -29,7 +29,7 @@ clear path_fieldtrip path_plot_fn
 bands = {'delta','theta','alpha','beta','gamma'};
 
 % load data
-regional_summaries = readtable('../3_output/regional_age_model_stats_TEST.csv','VariableNamingRule','preserve');
+regional_summaries = readtable('../3_output/regional_age_model_stats.csv','VariableNamingRule','preserve');
 
 % rename column to be what plotting function is looking for
 regional_summaries = renamevars(regional_summaries,"ROI_name","names");
@@ -49,7 +49,7 @@ atlas_cortical.names = mat2cell(beta_ages.names,76);
 
 clear regional_summaries beta_ages
 
-%% plot maps and save (all FB)
+%% plot maps and save (all bands)
 
 %%%%% ISSUES ->
 % plotting doesn't plot the correct colours the first time, run
