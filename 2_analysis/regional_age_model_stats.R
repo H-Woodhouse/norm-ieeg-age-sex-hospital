@@ -139,12 +139,5 @@ for (i in empty_rows) {
 rm(empty_rows,i,mod_summaries,ROI1_info)
 
 # save resulting data frame 
-write.csv(region_summaries,"../3_output/regional_age_model_stats_TEST.csv", row.names = F)
+write.csv(region_summaries,"../3_output/regional_age_model_stats.csv", row.names = F)
 
-
-
-
-# for plotting script
-region_summaries_RH = na.omit(region_summaries) %>% 
-  arrange(no.subj) %>% 
-  mutate(Area=factor(Area,levels=Area))
