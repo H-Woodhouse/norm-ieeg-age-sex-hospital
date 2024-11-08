@@ -7,8 +7,8 @@ __1_data__ comprises the final normative data frames ready for modelling. There 
 - The number of hospitals per region in the mirrored ROI1 RBP data
 - The number of subjects per region in the mirrored ROI1 RBP data
 
-__2_analysis__ contains all modelling and plotting scripts, organised by either regional, or whole brain analysis.
+__2_analysis__ contains all modelling and plotting scripts, organised in the order they appear in the manuscript.
 
-__3_outputs__ and __4_supplementary__ are not tracked.
+__3_outputs__ and __4_supplementary__ are not tracked. The former is created within scripts and any output produced is stored there.
 
 __MATLAB_lib__ folder has the functions called to plot the brains along with the pial files needed.
