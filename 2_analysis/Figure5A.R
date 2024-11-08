@@ -108,7 +108,7 @@ regional_scatter_all_bands
 
 # save
 # change file name if changing region
-pdf("../3_output/midtemp_scatter1.pdf",width = 8, height = 2)
+pdf("../3_output/midtemp_scatter.pdf",width = 8, height = 2)
 regional_scatter_all_bands
 dev.off()
 
